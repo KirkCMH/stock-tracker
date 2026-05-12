@@ -5,7 +5,7 @@ import { getSupabaseAdmin } from '../services/supabase'
 // Maps FinMind industry_category to a normalized label
 const FINANCIAL_KEYWORDS = ['金融', 'financial', 'insurance', '保險', '銀行', 'bank']
 
-function isFinancialIndustry(category: string): boolean {
+export function isFinancialIndustry(category: string): boolean {
   const lower = category.toLowerCase()
   return FINANCIAL_KEYWORDS.some(k => lower.includes(k))
 }

@@ -56,7 +56,7 @@ export async function fetchQuarterlyFinancials(
   return parseFinancialRows(json.data)
 }
 
-function parseFinancialRows(rows: RawIncomeRow[]): Omit<FinancialReport, 'stock_id'>[] {
+export function parseFinancialRows(rows: RawIncomeRow[]): Omit<FinancialReport, 'stock_id'>[] {
   type PeriodKey = string
   const periods = new Map<PeriodKey, {
     year: number
@@ -75,17 +75,17 @@ function parseFinancialRows(rows: RawIncomeRow[]): Omit<FinancialReport, 'stock_
     let quarter: number
     let is_full_year = false
 
-    if (row.type === 'Q4' || month === 12) {
-      quarter = 4
+    if (row.type === 'Annual') {
+      quarter = 0
+      is_full_year = true
     } else if (row.type === 'Q1' || month === 3) {
       quarter = 1
     } else if (row.type === 'Q2' || month === 6) {
       quarter = 2
     } else if (row.type === 'Q3' || month === 9) {
       quarter = 3
-    } else if (row.type === 'Annual') {
-      quarter = 0
-      is_full_year = true
+    } else if (row.type === 'Q4' || month === 12) {
+      quarter = 4
     } else {
       continue
     }

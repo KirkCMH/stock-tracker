@@ -16,4 +16,5 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: rm -f package-lock.json && npm install
+      - run: npm run test:coverage
       - run: npm run typecheck
