@@ -18,6 +18,11 @@ logs
 .fleet
 .idea
 
+# Agent skills and AI tooling (local installations)
+.agents/
+.claude/
+skills-lock.json
+
 # Local env files
 .env
 .env.*
