@@ -16,10 +16,14 @@ export const useFinancialData = () => {
   const { selectedStock } = useSelectedStock()
   const range = useState<RangeFilter>('financialRange', () => '5y')
 
-  const { data: reports, pending, error } = useFetch<FinancialReport[]>(
-    () => selectedStock.value ? `/api/financials/${selectedStock.value.stock_id}` : null as unknown as string,
-    { watch: [selectedStock] },
+  const { data: reports, pending, error, refresh } = useFetch<FinancialReport[]>(
+    () => `/api/financials/${selectedStock.value?.stock_id ?? '_none_'}`,
+    { immediate: false },
   )
+
+  watch(selectedStock, (stock) => {
+    if (stock) refresh()
+  }, { immediate: true })
 
   const filtered = computed<FinancialReport[]>(() => {
     if (!reports.value) return []

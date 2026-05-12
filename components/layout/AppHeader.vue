@@ -15,7 +15,7 @@ const { selectedStock } = useSelectedStock()
     <span v-else class="text-sm text-muted-foreground">請從左側選擇股票</span>
 
     <div class="ml-auto">
-      <SyncSyncStatusBadge />
+      <SyncStatusBadge />
     </div>
   </header>
 </template>

@@ -22,12 +22,25 @@ export async function runSync(): Promise<SyncLog> {
     // 1. Fetch TW50 constituent list
     const tw50 = await fetchTW50List(token)
 
-    // 2. UPSERT tracking_stocks
-    const stockRows: Omit<TrackingStock, 'id'>[] = tw50.map(s => ({
-      stock_id: s.stock_id,
-      stock_name: s.stock_name,
-      industry_type: isFinancialIndustry(s.industry_category) ? 'Financial' : s.industry_category,
-    }))
+    // 2. UPSERT tracking_stocks (deduplicate — FinMind may list same stock_id under multiple exchange types)
+    const stockMap = new Map<string, Omit<TrackingStock, 'id'>>()
+    for (const s of tw50) {
+      if (!stockMap.has(s.stock_id)) {
+        stockMap.set(s.stock_id, {
+          stock_id: s.stock_id,
+          stock_name: s.stock_name,
+          industry_type: isFinancialIndustry(s.industry_category) ? 'Financial' : s.industry_category,
+        })
+      }
+    }
+    const stockRows = Array.from(stockMap.values())
+    const keepIds = stockRows.map(s => s.stock_id)
+
+    // Remove stocks no longer in the TW50 constituent list
+    await supabase
+      .from('tracking_stocks')
+      .delete()
+      .not('stock_id', 'in', `(${keepIds.join(',')})`)
 
     const { error: stocksError } = await supabase
       .from('tracking_stocks')
@@ -36,7 +49,7 @@ export async function runSync(): Promise<SyncLog> {
     if (stocksError) throw new Error(`tracking_stocks upsert failed: ${stocksError.message}`)
 
     // 3. Per-stock financial sync (with 2s rate-limit delay inside fetchQuarterlyFinancials)
-    for (const stock of tw50) {
+    for (const stock of stockRows) {
       try {
         const reports = await fetchQuarterlyFinancials(stock.stock_id, token)
 

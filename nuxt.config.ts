@@ -34,5 +34,9 @@ export default defineNuxtConfig({
     strict: true,
   },
 
+  components: {
+    dirs: [{ path: '~/components', pathPrefix: false }],
+  },
+
   css: ['~/assets/css/main.css'],
 })

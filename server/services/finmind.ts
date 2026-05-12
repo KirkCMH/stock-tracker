@@ -3,6 +3,15 @@ import type { FinancialReport } from '~/types/stock'
 
 const FINMIND_BASE = 'https://api.finmindtrade.com/api/v4'
 
+// 0050 ETF constituents (2024–2025)
+const TW50_STOCK_IDS = new Set([
+  '2330', '2317', '2454', '2308', '2382', '2303', '2881', '2882', '2412', '2891',
+  '3711', '2886', '2884', '2892', '5880', '2880', '2885', '2883', '2888', '2609',
+  '2603', '2615', '2379', '3034', '2357', '2395', '3008', '2376', '2327', '2353',
+  '2474', '3045', '4904', '9910', '6505', '1301', '1303', '1326', '2002', '2207',
+  '3481', '5871', '2887', '2890', '6669', '2912', '1216', '2610', '2618', '2337',
+])
+
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -18,7 +27,7 @@ export async function fetchTW50List(token: string): Promise<FinMindStockInfo[]> 
   const json: FinMindResponse<FinMindStockInfo> = await res.json()
   if (json.status !== 200) throw new Error(`FinMind error: ${json.msg}`)
 
-  return json.data.filter(s => s.type === 'twse' || s.type === 'otc')
+  return json.data.filter(s => TW50_STOCK_IDS.has(s.stock_id))
 }
 
 interface RawIncomeRow {
